@@ -3,6 +3,7 @@
 *.class
 *java#
 *.settings
+*.classpath
 local.properties
 .arc/
 bin/
