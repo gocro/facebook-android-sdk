@@ -1,5 +1,5 @@
 /**
- * Copyright 2012 Facebook
+ * Copyright 2010-present Facebook.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GraphApiSampleActivity extends Activity {
-    static final String applicationId = "307234779396415";
+    static final String APP_ID = "307234779396415";
     static final String PENDING_REQUEST_BUNDLE_KEY = "com.facebook.samples.graphapi:PendingRequest";
 
     Button buttonRequest;
@@ -68,6 +68,15 @@ public class GraphApiSampleActivity extends Activity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+
+        // Call the 'activateApp' method to log an app event for use in analytics and advertising reporting.  Do so in
+        // the onResume methods of the primary Activities that an app may be launched into.
+        AppEventsLogger.activateApp(this, APP_ID);
+    }
+
+    @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
 
@@ -94,6 +103,8 @@ public class GraphApiSampleActivity extends Activity {
                                 .setPositiveButton(R.string.ok_button, null)
                                 .show();
                         GraphApiSampleActivity.this.session = createSession();
+                    } else if (session.isOpened()) {
+                        sendRequests();
                     }
                 }
             };
@@ -130,13 +141,13 @@ public class GraphApiSampleActivity extends Activity {
             }));
         }
         pendingRequest = false;
-        Request.executeBatchAndWait(requests);
+        Request.executeBatchAsync(requests);
     }
 
     private Session createSession() {
         Session activeSession = Session.getActiveSession();
         if (activeSession == null || activeSession.getState().isClosed()) {
-            activeSession = new Session.Builder(this).setApplicationId(applicationId).build();
+            activeSession = new Session.Builder(this).setApplicationId(APP_ID).build();
             Session.setActiveSession(activeSession);
         }
         return activeSession;
